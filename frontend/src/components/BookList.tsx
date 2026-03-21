@@ -79,6 +79,14 @@ export default function BookList() {
     [],
   )
 
+  /** One-based page numbers for pagination links (length = total pages in the dataset). */
+  const pageLinkNumbers = useMemo(() => {
+    if (!data || data.totalPages < 1) {
+      return []
+    }
+    return Array.from({ length: data.totalPages }, (_, i) => i + 1)
+  }, [data])
+
   return (
     <div className="container py-4">
       <header className="mb-4 pb-3 border-bottom">
@@ -188,39 +196,63 @@ export default function BookList() {
                   )}`}{' '}
               of {data.totalCount} books
             </p>
-            <ul className="pagination mb-0">
-              <li className={`page-item ${data.page <= 1 ? 'disabled' : ''}`}>
-                <button
-                  type="button"
+            <ul className="pagination mb-0 flex-wrap">
+              <li
+                className={`page-item ${data.page <= 1 || data.totalPages === 0 ? 'disabled' : ''}`}
+              >
+                <a
                   className="page-link"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={data.page <= 1}
+                  href="#"
+                  aria-label="Previous page"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (data.page > 1) {
+                      setPage((p) => Math.max(1, p - 1))
+                    }
+                  }}
                 >
                   Previous
-                </button>
+                </a>
               </li>
-              <li className="page-item disabled">
-                <span className="page-link">
-                  Page {data.page} of {Math.max(data.totalPages, 1)}
-                </span>
-              </li>
+              {pageLinkNumbers.map((pageNum) => (
+                <li
+                  key={pageNum}
+                  className={`page-item ${data.page === pageNum ? 'active' : ''}`}
+                >
+                  <a
+                    className="page-link"
+                    href="#"
+                    aria-label={`Page ${pageNum}`}
+                    aria-current={data.page === pageNum ? 'page' : undefined}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setPage(pageNum)
+                    }}
+                  >
+                    {pageNum}
+                  </a>
+                </li>
+              ))}
               <li
                 className={`page-item ${
-                  data.page >= data.totalPages ? 'disabled' : ''
+                  data.page >= data.totalPages || data.totalPages === 0
+                    ? 'disabled'
+                    : ''
                 }`}
               >
-                <button
-                  type="button"
+                <a
                   className="page-link"
-                  onClick={() =>
-                    setPage((p) =>
-                      data.totalPages ? Math.min(data.totalPages, p + 1) : p,
-                    )
-                  }
-                  disabled={data.page >= data.totalPages || data.totalPages === 0}
+                  href="#"
+                  aria-label="Next page"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (data.page < data.totalPages) {
+                      setPage((p) => Math.min(data.totalPages, p + 1))
+                    }
+                  }}
                 >
                   Next
-                </button>
+                </a>
               </li>
             </ul>
           </nav>

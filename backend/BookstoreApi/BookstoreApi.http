@@ -1,6 +1,6 @@
 @BookstoreApi_HostAddress = http://localhost:5121
 
-GET {{BookstoreApi_HostAddress}}/weatherforecast/
+GET {{BookstoreApi_HostAddress}}/api/books?page=1&pageSize=5&sortDirection=asc
 Accept: application/json
 
 ###

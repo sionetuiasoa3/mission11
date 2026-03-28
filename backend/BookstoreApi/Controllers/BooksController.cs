@@ -17,13 +17,32 @@ public class BooksController : ControllerBase
     }
 
     /// <summary>
+    /// Returns all distinct book categories.
+    /// </summary>
+    [HttpGet("categories")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetCategories(
+        CancellationToken cancellationToken = default)
+    {
+        var categories = await _db.Books
+            .AsNoTracking()
+            .Select(b => b.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync(cancellationToken);
+
+        return Ok(categories);
+    }
+
+    /// <summary>
     /// Returns books sorted by title with pagination. Default: page 1, 5 per page, ascending title.
+    /// Optional category filters narrow the result set before pagination totals are computed.
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PagedBooksResult>> GetBooks(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 5,
         [FromQuery] string sortDirection = "asc",
+        [FromQuery] List<string>? categories = null,
         CancellationToken cancellationToken = default)
     {
         if (page < 1)
@@ -39,7 +58,13 @@ public class BooksController : ControllerBase
         pageSize = Math.Min(pageSize, 100);
 
         var dir = sortDirection.Trim().ToLowerInvariant();
-        var query = _db.Books.AsNoTracking();
+        IQueryable<Book> query = _db.Books.AsNoTracking();
+
+        if (categories is { Count: > 0 })
+        {
+            query = query.Where(b => categories.Contains(b.Category));
+        }
+
         query = dir == "desc"
             ? query.OrderByDescending(b => b.Title)
             : query.OrderBy(b => b.Title);

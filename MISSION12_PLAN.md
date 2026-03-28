@@ -1,0 +1,17 @@
+- [x] Step 1: Add .gitignore to backend, reorganize React src/ folder structure
+- [x] Step 2: Backend GET endpoint for distinct categories
+- [x] Step 3: Update main books endpoint to accept and apply category filters using IQueryable
+- [x] Step 4: Fix pagination to recalculate totalItems after filter is applied
+- [x] Step 5: Create CategoryFilter React component with checkboxes
+- [x] Step 6: Lift selectedCategories state to parent page, pass as props
+- [x] Step 7: Build dynamic filter query string in book list component, add to useEffect dependency array
+- [x] Step 8: Bootstrap Grid layout (col-md-3 for filter, col-md-9 for book list)
+- [x] Step 9: Add two new Bootstrap features with comments
+- [x] Step 10: Install react-router-dom, set up BrowserRouter, Routes, and Route tags in App.tsx
+- [x] Step 11: Set up URL parameter routes for donate page, use useParams(), cast bookId to Number()
+- [x] Step 12: Implement Continue Shopping using navigate(-1)
+- [x] Step 13: Create CartItem and CartContextType interfaces in types/
+- [x] Step 14: Build CartProvider with useState, addToCart logic, removeFromCart, clearCart in context/
+- [x] Step 15: Wrap Routes in CartProvider in App.tsx, export useCart custom hook
+- [x] Step 16: Add cart summary to main book list page
+- [x] Step 17: Build cart page showing item name, quantity, price, subtotal, and running total

@@ -1,45 +1,41 @@
+import { Link } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-
-type Book = {
-  bookID: number
-  title: string
-  author: string
-  publisher: string
-  isbn: string
-  classification: string
-  category: string
-  pageCount: number
-  price: number
-}
-
-type PagedBooksResult = {
-  items: Book[]
-  totalCount: number
-  page: number
-  pageSize: number
-  totalPages: number
-}
+import { useCart } from '../context/CartProvider'
+import type { PagedBooksResult } from '../types/book'
 
 const PAGE_SIZE_OPTIONS = [5, 10, 15, 20] as const
+
+type BookListProps = {
+  selectedCategories: string[]
+}
 
 async function fetchBooks(
   page: number,
   pageSize: number,
   sortDirection: 'asc' | 'desc',
+  selectedCategories: string[],
 ): Promise<PagedBooksResult> {
   const params = new URLSearchParams({
     page: String(page),
     pageSize: String(pageSize),
     sortDirection,
   })
-  const res = await fetch(`/api/books?${params}`)
+  const categoryQuery =
+    selectedCategories.length > 0
+      ? selectedCategories
+          .map((c) => `categories=${encodeURIComponent(c)}`)
+          .join('&')
+      : ''
+  const qs = categoryQuery ? `${params.toString()}&${categoryQuery}` : params.toString()
+  const res = await fetch(`/api/books?${qs}`)
   if (!res.ok) {
     throw new Error(`Request failed (${res.status})`)
   }
   return res.json() as Promise<PagedBooksResult>
 }
 
-export default function BookList() {
+export default function BookList({ selectedCategories }: BookListProps) {
+  const { addToCart } = useCart()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
@@ -47,11 +43,20 @@ export default function BookList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    setPage(1)
+  }, [selectedCategories])
+
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const result = await fetchBooks(page, pageSize, sortDirection)
+      const result = await fetchBooks(
+        page,
+        pageSize,
+        sortDirection,
+        selectedCategories,
+      )
       setData(result)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
@@ -59,11 +64,11 @@ export default function BookList() {
     } finally {
       setLoading(false)
     }
-  }, [page, pageSize, sortDirection])
+  }, [page, pageSize, sortDirection, selectedCategories])
 
   useEffect(() => {
     void load()
-  }, [load])
+  }, [load, selectedCategories])
 
   const onPageSizeChange = (next: number) => {
     setPage(1)
@@ -88,14 +93,7 @@ export default function BookList() {
   }, [data])
 
   return (
-    <div className="container py-4">
-      <header className="mb-4 pb-3 border-bottom">
-        <h1 className="h2 mb-1">Online Bookstore</h1>
-        <p className="text-body-secondary mb-0">
-          Books from the Mission 11 database, sorted by title.
-        </p>
-      </header>
-
+    <div>
       <div className="row g-3 align-items-end mb-3">
         <div className="col-sm-6 col-md-4">
           <label htmlFor="pageSize" className="form-label">
@@ -161,6 +159,8 @@ export default function BookList() {
                   <th scope="col" className="text-end">
                     Price
                   </th>
+                  <th scope="col">Cart</th>
+                  <th scope="col">Donate</th>
                 </tr>
               </thead>
               <tbody>
@@ -176,6 +176,30 @@ export default function BookList() {
                     <td>{b.category}</td>
                     <td className="text-end">{b.pageCount}</td>
                     <td className="text-end">{currency.format(b.price)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-primary"
+                        onClick={() =>
+                          addToCart({
+                            bookId: b.bookID,
+                            name: b.title,
+                            price: b.price,
+                            quantity: 1,
+                          })
+                        }
+                      >
+                        Add to cart
+                      </button>
+                    </td>
+                    <td>
+                      <Link
+                        className="btn btn-sm btn-outline-secondary"
+                        to={`/donate/${b.bookID}/${encodeURIComponent(b.title)}`}
+                      >
+                        Donate
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

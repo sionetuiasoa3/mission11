@@ -13,8 +13,8 @@ Check each box as you complete it (mirrors **MISSION13.md** and **MISSION13_CHUN
 - [x] **9.** Add `/adminbooks` route in `App.tsx` + Admin link in `BookListPage.tsx` (offcanvas per chunk prompts)
 - [x] **10.** Add `frontend/public/routes.json`
 - [x] **11.** Update `vite.config.ts` proxy to `https://localhost:7255` with `secure: false`
-- [ ] **12.** Local test: API with **`dotnet watch run --launch-profile https`** + `npm run dev`
-- [ ] **13.** Commit and push `phase6` to GitHub
+- [x] **12.** Local test: API with **`dotnet watch run --launch-profile https`** + `npm run dev` (API CRUD smoke-tested; you should still click through the UI once)
+- [x] **13.** Commit and push `phase6` to GitHub
 - [ ] **14.** Publish backend + deploy to Azure App Service
 - [ ] **15.** Set `API_URL` in `booksApi.ts` to full Azure `.../api/books` URL; commit + push
 - [ ] **16.** `npm run build` + deploy frontend (e.g. Azure Static Web App)

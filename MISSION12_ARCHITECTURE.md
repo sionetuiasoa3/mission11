@@ -6,7 +6,7 @@ frontend/src/
   context/        -- CartProvider and useCart hook
 API Endpoints:
 
-GET /api/books?categories=X&categories=Y&pageNum=1&pageSize=10 -- returns filtered paginated books
+GET /api/books?categories=X&categories=Y&page=1&pageSize=10&sortDirection=asc -- returns filtered paginated books
 GET /api/books/categories -- returns distinct category list as string array
 
 Data flow:

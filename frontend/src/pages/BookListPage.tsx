@@ -58,6 +58,13 @@ export default function BookListPage() {
           <Link to="/cart" className="btn btn-light text-start" data-bs-dismiss="offcanvas">
             Shopping cart
           </Link>
+          <Link
+            to="/adminbooks"
+            className="btn btn-light text-start"
+            data-bs-dismiss="offcanvas"
+          >
+            Admin
+          </Link>
         </div>
       </div>
 

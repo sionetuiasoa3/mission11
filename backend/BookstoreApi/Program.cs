@@ -12,11 +12,11 @@ builder.Services.AddDbContext<BookstoreDbContext>(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -31,7 +31,7 @@ else
     app.UseHttpsRedirection();
 }
 
-app.UseCors();
+app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
 

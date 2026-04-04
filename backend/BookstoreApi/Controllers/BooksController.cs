@@ -83,4 +83,66 @@ public class BooksController : ControllerBase
             PageSize = pageSize
         });
     }
+
+    /// <summary>
+    /// Adds a new book (client should omit BookID or send 0 for insert).
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<Book>> AddBook(
+        [FromBody] Book newBook,
+        CancellationToken cancellationToken = default)
+    {
+        newBook.BookID = 0;
+        _db.Books.Add(newBook);
+        await _db.SaveChangesAsync(cancellationToken);
+        return Ok(newBook);
+    }
+
+    /// <summary>
+    /// Updates an existing book by id.
+    /// </summary>
+    [HttpPut("{bookId}")]
+    public async Task<ActionResult<Book>> UpdateBook(
+        int bookId,
+        [FromBody] Book updatedBook,
+        CancellationToken cancellationToken = default)
+    {
+        var existing = await _db.Books.FindAsync([bookId], cancellationToken);
+        if (existing is null)
+        {
+            return NotFound();
+        }
+
+        existing.Title = updatedBook.Title;
+        existing.Author = updatedBook.Author;
+        existing.Publisher = updatedBook.Publisher;
+        existing.ISBN = updatedBook.ISBN;
+        existing.Classification = updatedBook.Classification;
+        existing.Category = updatedBook.Category;
+        existing.PageCount = updatedBook.PageCount;
+        existing.Price = updatedBook.Price;
+
+        _db.Books.Update(existing);
+        await _db.SaveChangesAsync(cancellationToken);
+        return Ok(existing);
+    }
+
+    /// <summary>
+    /// Deletes a book by id.
+    /// </summary>
+    [HttpDelete("{bookId}")]
+    public async Task<ActionResult> DeleteBook(
+        int bookId,
+        CancellationToken cancellationToken = default)
+    {
+        var book = await _db.Books.FindAsync([bookId], cancellationToken);
+        if (book is null)
+        {
+            return NotFound("Book not found.");
+        }
+
+        _db.Books.Remove(book);
+        await _db.SaveChangesAsync(cancellationToken);
+        return NoContent();
+    }
 }

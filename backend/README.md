@@ -2,7 +2,7 @@
 
 ASP.NET Core Web API in **`BookstoreApi/`** — EF Core, SQLite, REST endpoints for books (list, filter, paginate, **POST / PUT / DELETE** for admin).
 
-**→ Full grading guide, live URLs, and how to run:** see the [repository root `README.md`](../README.md).
+**→ Overview, live URLs, and how to run:** see the [repository root `README.md`](../README.md).
 
 | Path | Purpose |
 |------|---------|

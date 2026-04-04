@@ -2,7 +2,7 @@
 
 TypeScript SPA: bookstore catalog, cart, donation link, and **admin CRUD** at **`/adminbooks`**.
 
-**→ Live site, rubric map, and API URL:** see the [repository root `README.md`](../README.md).
+**→ Live site, API URL, and setup:** see the [repository root `README.md`](../README.md).
 
 | Path | Purpose |
 |------|---------|

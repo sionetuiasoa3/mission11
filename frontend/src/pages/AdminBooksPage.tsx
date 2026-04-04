@@ -1,3 +1,7 @@
+/**
+ * Admin: view all books, add (NewBookForm), edit (EditBookForm), delete.
+ * Routed at /adminbooks — see App.tsx.
+ */
 import { useCallback, useEffect, useState } from 'react'
 import type { Book } from '../types/book'
 import { deleteBook, fetchBooks } from '../api/booksApi'

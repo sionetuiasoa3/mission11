@@ -1,44 +1,80 @@
-# Mission 11 – Online Bookstore
+# Mission 11 — Online Bookstore
 
-ASP.NET Core Web API + React (Vite) app connected to the provided **SQLite** database (`Bookstore.sqlite`). Lists all books with **Bootstrap** styling, **pagination** (default **5 per page**, user-selectable page size), and **sort by title** (A→Z / Z→A).
+Full-stack **ASP.NET Core Web API** + **React (Vite, TypeScript)** bookstore: browse with filters, pagination, sort, cart, and **admin CRUD** (add / edit / delete books) against **SQLite**.
+
+---
+
+## Quick links (grading)
+
+| What | Where |
+|------|--------|
+| **Live website (Azure Static Web Apps)** | `https://white-smoke-05fd5c10f.4.azurestaticapps.net` |
+| **Live API (Azure App Service)** | `https://is413-bookstore-api-gbdkeqftb6azcgc8.francecentral-01.azurewebsites.net` |
+| **Sample books endpoint** | `GET https://is413-bookstore-api-gbdkeqftb6azcgc8.francecentral-01.azurewebsites.net/api/books?page=1&pageSize=5&sortDirection=asc` |
+| **Admin UI (after opening the site)** | **Menu → Admin** or path **`/adminbooks`** |
+| **CI/CD** | [`.github/workflows/azure-static-web-apps-white-smoke-05fd5c10f.yml`](.github/workflows/azure-static-web-apps-white-smoke-05fd5c10f.yml) — runs on pushes to **`phase6`** and **`master`** |
+
+> **URL note:** The Static Web App hostname includes **`.4.`** as its own label (`05fd5c10f.4.azurestaticapps.net`). If you omit the dot and type `05fd5c10f4`, you may hit a different host and see a 404.
+
+---
+
+## Rubric map (where to look)
+
+| Criterion | In this project |
+|-----------|-----------------|
+| **App compiles and runs** | Backend: `dotnet build Bookstore.slnx` from repo root; Frontend: `cd frontend && npm ci && npm run build`. Run locally: API then `npm run dev` (see below). |
+| **Add books** | UI: **`/adminbooks`** → **Add book** → [`NewBookForm.tsx`](frontend/src/components/NewBookForm.tsx). API: `POST /api/books` in [`BooksController.cs`](backend/BookstoreApi/Controllers/BooksController.cs). Client: [`addBook`](frontend/src/api/booksApi.ts). |
+| **Edit books** | UI: **Edit** on admin table → [`EditBookForm.tsx`](frontend/src/components/EditBookForm.tsx). API: `PUT /api/books/{id}`. Client: [`updateBook`](frontend/src/api/booksApi.ts). |
+| **Delete books** | UI: **Delete** on admin table → [`AdminBooksPage.tsx`](frontend/src/pages/AdminBooksPage.tsx). API: `DELETE /api/books/{id}`. Client: [`deleteBook`](frontend/src/api/booksApi.ts). |
+| **Deployed on Azure (front + back)** | Frontend URL in the table above; production API base URL is set in [`booksApi.ts`](frontend/src/api/booksApi.ts) (`API_URL`). Backend is deployed separately (App Service); frontend calls that URL over HTTPS. |
+| **Clean code** | Controllers use XML doc comments; React components use typed props/state and small focused files. Routing: [`App.tsx`](frontend/src/App.tsx). |
+
+---
 
 ## Repository layout
 
-| Folder | What it is |
-|--------|------------|
-| **`backend/BookstoreApi/`** | **API + database** — ASP.NET Core project, EF Core, SQLite file under `Data/`. |
-| **`frontend/`** | **React UI** — Vite + TypeScript, Bootstrap, book list and pagination. |
-
 ```
 mission11/
-├── Bookstore.slnx          ← Open in Rider / VS / `dotnet build`
-├── README.md               ← You are here
+├── README.md                          ← Start here (this file)
+├── Bookstore.slnx                     ← Open / build entire .NET solution
+├── .github/workflows/
+│   └── azure-static-web-apps-white-smoke-05fd5c10f.yml   ← Frontend deploy to Azure SWA
 ├── backend/
-│   └── BookstoreApi/       ← .NET Web API (Program.cs, Controllers, Models, Data/)
-└── frontend/               ← React app (package.json, src/, vite.config.ts)
+│   ├── README.md                      ← Backend-only notes
+│   └── BookstoreApi/                  ← Web API, EF Core, SQLite under Data/
+└── frontend/
+    ├── README.md                      ← Frontend-only notes
+    ├── src/
+    │   ├── App.tsx                    ← Routes: /, /adminbooks, /cart, …
+    │   ├── api/booksApi.ts            ← All HTTP calls to the books API
+    │   ├── components/                ← BookList, forms, filters, cart UI
+    │   └── pages/                     ← BookListPage, AdminBooksPage, …
+    └── public/
+        └── staticwebapp.config.json   ← SPA fallback for Azure Static Web Apps
 ```
+
+---
 
 ## Prerequisites
 
-- [.NET SDK](https://dotnet.microsoft.com/download) (10.x used here)
-- [Node.js](https://nodejs.org/) (for the React client)
+- [.NET SDK](https://dotnet.microsoft.com/download) (10.x)
+- [Node.js](https://nodejs.org/) 20+ (for the React app)
 
-## Run the API (backend)
+---
+
+## Run locally (API + React)
+
+**1. API**
 
 ```bash
 cd backend/BookstoreApi
 dotnet run --launch-profile http
 ```
 
-API listens on **http://localhost:5121** (see `Properties/launchSettings.json`).
+Default URL: **http://localhost:5121** (see `Properties/launchSettings.json`).  
+Database file: **`backend/BookstoreApi/Data/Bookstore.sqlite`**.
 
-- Books: `GET /api/books?page=1&pageSize=5&sortDirection=asc`
-
-The database file is at **`backend/BookstoreApi/Data/Bookstore.sqlite`**.
-
-## Run the React app (frontend)
-
-In a **second** terminal:
+**2. Frontend** (second terminal)
 
 ```bash
 cd frontend
@@ -46,22 +82,28 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually **http://localhost:5173**). The dev server **proxies** `/api` to the API on port 5121.
+Open the URL Vite prints (usually **http://localhost:5173**).  
+For local dev, point the client at the proxy by setting `API_URL` in [`booksApi.ts`](frontend/src/api/booksApi.ts) to **`'/api/books'`** (Vite proxies `/api` to the API). The committed value targets the **production** Azure API so the deployed site works without changes.
 
-## Build / check from repo root
+---
+
+## Verify build from repo root
 
 ```bash
 dotnet build Bookstore.slnx
-cd frontend && npm run build
+cd frontend && npm ci && npm run build
 ```
 
-## Assignment checklist
+---
+
+## Assignment features (original checklist)
 
 - [x] Models match `Books` table in SQLite  
-- [x] Component lists each book’s fields  
-- [x] Pagination, 5 per page default, user can change page size  
-- [x] Sort by book title  
+- [x] List shows each book’s fields  
+- [x] Pagination (default 5 per page, user can change page size), sort by title  
 - [x] Bootstrap styling  
-- [x] Main list component used from `App.tsx`  
+- [x] Category filters  
+- [x] Admin: add, edit, delete books  
+- [x] Frontend on Azure Static Web Apps; API on Azure App Service  
 
-Submit: push this folder to **GitHub** and turn in the repo link on Learning Suite.
+Submit: GitHub repo URL on Learning Suite.

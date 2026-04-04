@@ -1,13 +1,14 @@
-# Backend (API)
+# Backend (Bookstore API)
 
-**ASP.NET Core** Web API in **`BookstoreApi/`**.
+ASP.NET Core Web API in **`BookstoreApi/`** — EF Core, SQLite, REST endpoints for books (list, filter, paginate, **POST / PUT / DELETE** for admin).
 
-- **`BookstoreApi/`** — Project root (`BookstoreApi.csproj`, `Program.cs`).
-- **`BookstoreApi/Controllers/`** — HTTP endpoints (e.g. `BooksController`).
-- **`BookstoreApi/Models/`** — EF entities and DTOs.
-- **`BookstoreApi/Data/`** — `BookstoreDbContext` and **`Bookstore.sqlite`**.
+**→ Full grading guide, live URLs, and how to run:** see the [repository root `README.md`](../README.md).
 
-Run from the project folder:
+| Path | Purpose |
+|------|---------|
+| `BookstoreApi/Controllers/BooksController.cs` | All `/api/books` routes |
+| `BookstoreApi/Data/` | `BookstoreDbContext`, `Bookstore.sqlite` |
+| `BookstoreApi/Models/` | `Book`, `PagedBooksResult`, etc. |
 
 ```bash
 cd BookstoreApi

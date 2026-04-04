@@ -1,13 +1,21 @@
-# Frontend (React)
+# Frontend (React + Vite)
 
-**Vite + React + TypeScript** SPA.
+TypeScript SPA: bookstore catalog, cart, donation link, and **admin CRUD** at **`/adminbooks`**.
 
-- **`src/`** — Components (`components/BookList.tsx`), `App.tsx`, `main.tsx`.
-- **`vite.config.ts`** — Dev server proxy for `/api` → `http://localhost:5121`.
+**→ Live site, rubric map, and API URL:** see the [repository root `README.md`](../README.md).
 
-Run (with the API running):
+| Path | Purpose |
+|------|---------|
+| `src/App.tsx` | Routes |
+| `src/api/booksApi.ts` | Production API base URL + fetch helpers |
+| `src/pages/AdminBooksPage.tsx` | Admin list + delete |
+| `src/components/NewBookForm.tsx` | Add book |
+| `src/components/EditBookForm.tsx` | Edit book |
+| `vite.config.ts` | Dev proxy: `/api` → `http://localhost:5121` |
 
 ```bash
 npm install
 npm run dev
 ```
+
+Run the **backend** first so `/api` works locally (or temporarily set `API_URL` to `'/api/books'` in `src/api/booksApi.ts`).

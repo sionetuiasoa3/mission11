@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { fetchBooks } from '../api/booksApi'
 import { useCart } from '../context/CartProvider'
 import type { PagedBooksResult } from '../types/book'
 
@@ -7,31 +8,6 @@ const PAGE_SIZE_OPTIONS = [5, 10, 15, 20] as const
 
 type BookListProps = {
   selectedCategories: string[]
-}
-
-async function fetchBooks(
-  page: number,
-  pageSize: number,
-  sortDirection: 'asc' | 'desc',
-  selectedCategories: string[],
-): Promise<PagedBooksResult> {
-  const params = new URLSearchParams({
-    page: String(page),
-    pageSize: String(pageSize),
-    sortDirection,
-  })
-  const categoryQuery =
-    selectedCategories.length > 0
-      ? selectedCategories
-          .map((c) => `categories=${encodeURIComponent(c)}`)
-          .join('&')
-      : ''
-  const qs = categoryQuery ? `${params.toString()}&${categoryQuery}` : params.toString()
-  const res = await fetch(`/api/books?${qs}`)
-  if (!res.ok) {
-    throw new Error(`Request failed (${res.status})`)
-  }
-  return res.json() as Promise<PagedBooksResult>
 }
 
 export default function BookList({ selectedCategories }: BookListProps) {

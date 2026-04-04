@@ -1,4 +1,5 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { fetchDistinctCategories } from '../api/booksApi'
 
 type CategoryFilterProps = {
   selectedCategories: string[]
@@ -16,11 +17,7 @@ export default function CategoryFilter({
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('/api/books/categories')
-        if (!res.ok) {
-          throw new Error(`Request failed (${res.status})`)
-        }
-        const data = (await res.json()) as string[]
+        const data = await fetchDistinctCategories()
         setCategories(data)
         setError(null)
       } catch {

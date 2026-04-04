@@ -34,6 +34,23 @@ public class BooksController : ControllerBase
     }
 
     /// <summary>
+    /// Returns all distinct book classifications.
+    /// </summary>
+    [HttpGet("classifications")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetClassifications(
+        CancellationToken cancellationToken = default)
+    {
+        var classifications = await _db.Books
+            .AsNoTracking()
+            .Select(b => b.Classification)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync(cancellationToken);
+
+        return Ok(classifications);
+    }
+
+    /// <summary>
     /// Returns books sorted by title with pagination. Default: page 1, 5 per page, ascending title.
     /// Optional category filters narrow the result set before pagination totals are computed.
     /// </summary>

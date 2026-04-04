@@ -1,5 +1,10 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react'
-import { addBook, type NewBookPayload } from '../api/booksApi'
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import {
+  addBook,
+  fetchDistinctCategories,
+  fetchDistinctClassifications,
+  type NewBookPayload,
+} from '../api/booksApi'
 
 const emptyForm: NewBookPayload = {
   title: '',
@@ -21,8 +26,30 @@ export default function NewBookForm({ onSuccess, onCancel }: NewBookFormProps) {
   const [formData, setFormData] = useState<NewBookPayload>(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [categories, setCategories] = useState<string[]>([])
+  const [classifications, setClassifications] = useState<string[]>([])
+  const [listsError, setListsError] = useState<string | null>(null)
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [cats, cls] = await Promise.all([
+          fetchDistinctCategories(),
+          fetchDistinctClassifications(),
+        ])
+        setCategories(cats)
+        setClassifications(cls)
+        setListsError(null)
+      } catch {
+        setListsError('Could not load category or classification lists.')
+      }
+    }
+    void load()
+  }, [])
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target
     if (name === 'pageCount' || name === 'price') {
       setFormData((prev) => ({ ...prev, [name]: Number(value) }))
@@ -50,6 +77,11 @@ export default function NewBookForm({ onSuccess, onCancel }: NewBookFormProps) {
       <div className="card-body">
         <h2 className="card-title h4 mb-3">Add New Book</h2>
         <form onSubmit={handleSubmit}>
+          {listsError && (
+            <div className="alert alert-warning" role="alert">
+              {listsError}
+            </div>
+          )}
           {error && (
             <div className="alert alert-danger" role="alert">
               {error}
@@ -116,29 +148,45 @@ export default function NewBookForm({ onSuccess, onCancel }: NewBookFormProps) {
               <label className="form-label" htmlFor="new-classification">
                 Classification
               </label>
-              <input
+              <select
                 id="new-classification"
-                className="form-control"
+                className="form-select"
                 name="classification"
-                type="text"
                 value={formData.classification}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select classification…
+                </option>
+                {classifications.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="col-md-6">
               <label className="form-label" htmlFor="new-category">
                 Category
               </label>
-              <input
+              <select
                 id="new-category"
-                className="form-control"
+                className="form-select"
                 name="category"
-                type="text"
                 value={formData.category}
                 onChange={handleChange}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select category…
+                </option>
+                {categories.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="col-md-3">
               <label className="form-label" htmlFor="new-pageCount">

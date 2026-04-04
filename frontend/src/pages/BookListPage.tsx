@@ -30,6 +30,9 @@ export default function BookListPage() {
           <Link to="/cart" className="btn btn-outline-primary">
             Cart
           </Link>
+          <Link to="/adminbooks" className="btn btn-outline-dark">
+            Admin
+          </Link>
         </div>
       </header>
 

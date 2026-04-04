@@ -1,6 +1,18 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import type { Book } from '../types/book'
-import { updateBook } from '../api/booksApi'
+import {
+  fetchDistinctCategories,
+  fetchDistinctClassifications,
+  updateBook,
+} from '../api/booksApi'
+
+function mergeDistinct(current: string, fromApi: string[]): string[] {
+  const set = new Set(fromApi)
+  if (current && !set.has(current)) {
+    set.add(current)
+  }
+  return Array.from(set).sort((a, b) => a.localeCompare(b))
+}
 
 type EditBookFormProps = {
   book: Book
@@ -16,12 +28,44 @@ export default function EditBookForm({
   const [formData, setFormData] = useState<Book>({ ...book })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [categories, setCategories] = useState<string[]>([])
+  const [classifications, setClassifications] = useState<string[]>([])
+  const [listsError, setListsError] = useState<string | null>(null)
 
   useEffect(() => {
     setFormData({ ...book })
   }, [book])
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [cats, cls] = await Promise.all([
+          fetchDistinctCategories(),
+          fetchDistinctClassifications(),
+        ])
+        setCategories(cats)
+        setClassifications(cls)
+        setListsError(null)
+      } catch {
+        setListsError('Could not load category or classification lists.')
+      }
+    }
+    void load()
+  }, [])
+
+  const classificationOptions = useMemo(
+    () => mergeDistinct(formData.classification, classifications),
+    [formData.classification, classifications],
+  )
+
+  const categoryOptions = useMemo(
+    () => mergeDistinct(formData.category, categories),
+    [formData.category, categories],
+  )
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target
     if (name === 'pageCount' || name === 'price') {
       setFormData((prev) => ({ ...prev, [name]: Number(value) }))
@@ -49,6 +93,11 @@ export default function EditBookForm({
       <div className="card-body">
         <h2 className="card-title h4 mb-3">Edit Book — {book.title}</h2>
         <form onSubmit={handleSubmit}>
+          {listsError && (
+            <div className="alert alert-warning" role="alert">
+              {listsError}
+            </div>
+          )}
           {error && (
             <div className="alert alert-danger" role="alert">
               {error}
@@ -115,29 +164,39 @@ export default function EditBookForm({
               <label className="form-label" htmlFor="edit-classification">
                 Classification
               </label>
-              <input
+              <select
                 id="edit-classification"
-                className="form-control"
+                className="form-select"
                 name="classification"
-                type="text"
                 value={formData.classification}
                 onChange={handleChange}
                 required
-              />
+              >
+                {classificationOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="col-md-6">
               <label className="form-label" htmlFor="edit-category">
                 Category
               </label>
-              <input
+              <select
                 id="edit-category"
-                className="form-control"
+                className="form-select"
                 name="category"
-                type="text"
                 value={formData.category}
                 onChange={handleChange}
                 required
-              />
+              >
+                {categoryOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="col-md-3">
               <label className="form-label" htmlFor="edit-pageCount">

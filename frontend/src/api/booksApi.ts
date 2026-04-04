@@ -1,7 +1,27 @@
 import type { Book, PagedBooksResult } from '../types/book'
 
-/** Base path for books API. For Azure, set to full URL e.g. https://yourapp.azurewebsites.net/api/books */
-export const API_URL = '/api/books'
+/**
+ * Books API base path. Must end with `/api/books` (no trailing slash after `books`).
+ * Local dev: use `'/api/books'` and Vite proxy. Production: full Azure URL.
+ */
+export const API_URL =
+  'https://is413-bookstore-api-gbdkeqftb6azcgc8.francecentral-01.azurewebsites.net/api/books'
+
+export async function fetchDistinctCategories(): Promise<string[]> {
+  const res = await fetch(`${API_URL}/categories`)
+  if (!res.ok) {
+    throw new Error(`Request failed (${res.status})`)
+  }
+  return res.json() as Promise<string[]>
+}
+
+export async function fetchDistinctClassifications(): Promise<string[]> {
+  const res = await fetch(`${API_URL}/classifications`)
+  if (!res.ok) {
+    throw new Error(`Request failed (${res.status})`)
+  }
+  return res.json() as Promise<string[]>
+}
 
 export async function fetchBooks(
   page: number,

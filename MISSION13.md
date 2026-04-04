@@ -126,6 +126,7 @@ export type Book = {
 |--------|-----|---------|
 | GET | `/api/books` | Get paged books (already exists) |
 | GET | `/api/books/categories` | Get categories (already exists) |
+| GET | `/api/books/classifications` | Get distinct classifications (for admin dropdowns) |
 | POST | `/api/books` | Add a new book |
 | PUT | `/api/books/{bookId}` | Update an existing book |
 | DELETE | `/api/books/{bookId}` | Delete a book |
